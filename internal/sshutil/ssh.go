@@ -50,6 +50,8 @@ func DialVM(
 		}
 
 		sshClient = ssh.NewClient(sshConn, chans, reqs)
+		// Keep the Orchard port-forward / SSH session alive during long TestFlight waits.
+		go keepAlive(ctx, sshClient, 30*time.Second)
 		return nil
 	}, retry.Context(ctx), retry.Attempts(0), retry.Delay(time.Second), retry.DelayType(retry.FixedDelay))
 	if err != nil {
@@ -57,6 +59,22 @@ func DialVM(
 	}
 
 	return sshClient, nil
+}
+
+func keepAlive(ctx context.Context, client *ssh.Client, interval time.Duration) {
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			_, _, err := client.SendRequest("keepalive@openssh.com", true, nil)
+			if err != nil {
+				return
+			}
+		}
+	}
 }
 
 func RunScript(sshClient *ssh.Client, scriptPath string, shell string) error {
