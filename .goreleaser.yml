@@ -1,0 +1,63 @@
+version: 2
+
+project_name: gitlab-orchard-executor
+
+before:
+  hooks:
+    - go mod download
+
+builds:
+  - id: gitlab-orchard-executor
+    main: ./cmd/gitlab-orchard-executor
+    binary: gitlab-orchard-executor
+    ldflags:
+      - -s -w
+      - -X github.com/robinjanke/tart-orchard-gitlab-runner/internal/version.Version={{.Version}}
+      - -X github.com/robinjanke/tart-orchard-gitlab-runner/internal/version.Commit={{.ShortCommit}}
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+
+archives:
+  - id: binary
+    formats: [binary]
+    name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
+  - id: tar
+    name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
+
+dockers:
+  - image_templates:
+      - "ghcr.io/robinjanke/gitlab-orchard-executor:{{ .Tag }}-amd64"
+    goos: linux
+    goarch: amd64
+    dockerfile: Dockerfile.goreleaser
+    use: buildx
+    build_flag_templates:
+      - "--platform=linux/amd64"
+      - "--label=org.opencontainers.image.source=https://github.com/robinjanke/tart-orchard-gitlab-runner"
+  - image_templates:
+      - "ghcr.io/robinjanke/gitlab-orchard-executor:{{ .Tag }}-arm64"
+    goos: linux
+    goarch: arm64
+    dockerfile: Dockerfile.goreleaser
+    use: buildx
+    build_flag_templates:
+      - "--platform=linux/arm64"
+      - "--label=org.opencontainers.image.source=https://github.com/robinjanke/tart-orchard-gitlab-runner"
+
+docker_manifests:
+  - name_template: "ghcr.io/robinjanke/gitlab-orchard-executor:{{ .Tag }}"
+    image_templates:
+      - "ghcr.io/robinjanke/gitlab-orchard-executor:{{ .Tag }}-amd64"
+      - "ghcr.io/robinjanke/gitlab-orchard-executor:{{ .Tag }}-arm64"
+  - name_template: "ghcr.io/robinjanke/gitlab-orchard-executor:latest"
+    image_templates:
+      - "ghcr.io/robinjanke/gitlab-orchard-executor:{{ .Tag }}-amd64"
+      - "ghcr.io/robinjanke/gitlab-orchard-executor:{{ .Tag }}-arm64"
+
+release:
+  prerelease: auto
