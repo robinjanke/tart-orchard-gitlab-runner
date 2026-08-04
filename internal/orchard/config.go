@@ -72,6 +72,15 @@ func IsManagedVMName(name string) bool {
 }
 
 func (c *Config) ApplyEnvOverrides() error {
+	if raw := firstEnv("ORCHARD_URL", "ORCHARD_EXECUTOR_URL"); raw != "" {
+		c.URL = raw
+	}
+	if raw := firstEnv("ORCHARD_SERVICE_ACCOUNT_NAME", "ORCHARD_EXECUTOR_SERVICE_ACCOUNT_NAME"); raw != "" {
+		c.ServiceAccountName = raw
+	}
+	if raw := firstEnv("ORCHARD_SERVICE_ACCOUNT_TOKEN", "ORCHARD_EXECUTOR_SERVICE_ACCOUNT_TOKEN"); raw != "" {
+		c.ServiceAccountToken = raw
+	}
 	if raw := os.Getenv("ORCHARD_EXECUTOR_CPU"); raw != "" {
 		v, err := strconv.ParseUint(raw, 10, 64)
 		if err != nil {
