@@ -17,38 +17,40 @@ const (
 )
 
 type Config struct {
-	URL                  string
-	ServiceAccountName   string
-	ServiceAccountToken  string
-	CPU                  uint64
-	Memory               uint64
-	DiskSize             uint64
-	Labels               v1.Labels
-	Resources            v1.Resources
-	ImagePullPolicy      v1.ImagePullPolicy
-	SSHUsername          string
-	SSHPassword          string
-	SSHPort              uint16
-	Shell                string
-	Headless             bool
-	Nested               bool
-	DefaultImage         string
-	MaxConcurrentVMs     uint64
-	CapacityWaitTimeout  time.Duration
-	CapacityPollInterval time.Duration
-	VMReadyTimeout       time.Duration
-	PortForwardWait      uint16
-	WorkerOfflineTimeout time.Duration
+	URL                     string
+	ServiceAccountName      string
+	ServiceAccountToken     string
+	TrustedCertificatePath  string
+	CPU                     uint64
+	Memory                  uint64
+	DiskSize                uint64
+	Labels                  v1.Labels
+	Resources               v1.Resources
+	ImagePullPolicy         v1.ImagePullPolicy
+	SSHUsername             string
+	SSHPassword             string
+	SSHPort                 uint16
+	Shell                   string
+	Headless                bool
+	Nested                  bool
+	DefaultImage            string
+	MaxConcurrentVMs        uint64
+	CapacityWaitTimeout     time.Duration
+	CapacityPollInterval    time.Duration
+	VMReadyTimeout          time.Duration
+	PortForwardWait         uint16
+	WorkerOfflineTimeout    time.Duration
 }
 
 func DefaultConfig() Config {
 	return Config{
-		URL:                  firstEnv("ORCHARD_URL", "ORCHARD_EXECUTOR_URL"),
-		ServiceAccountName:   firstEnv("ORCHARD_SERVICE_ACCOUNT_NAME", "ORCHARD_EXECUTOR_SERVICE_ACCOUNT_NAME"),
-		ServiceAccountToken:  firstEnv("ORCHARD_SERVICE_ACCOUNT_TOKEN", "ORCHARD_EXECUTOR_SERVICE_ACCOUNT_TOKEN"),
-		SSHUsername:          envOr("ORCHARD_EXECUTOR_SSH_USERNAME", "admin"),
-		SSHPassword:          envOr("ORCHARD_EXECUTOR_SSH_PASSWORD", "admin"),
-		SSHPort:              22,
+		URL:                    firstEnv("ORCHARD_URL", "ORCHARD_EXECUTOR_URL"),
+		ServiceAccountName:     firstEnv("ORCHARD_SERVICE_ACCOUNT_NAME", "ORCHARD_EXECUTOR_SERVICE_ACCOUNT_NAME"),
+		ServiceAccountToken:    firstEnv("ORCHARD_SERVICE_ACCOUNT_TOKEN", "ORCHARD_EXECUTOR_SERVICE_ACCOUNT_TOKEN"),
+		TrustedCertificatePath: firstEnv("ORCHARD_TRUSTED_CERTIFICATE", "ORCHARD_EXECUTOR_TRUSTED_CERTIFICATE"),
+		SSHUsername:            envOr("ORCHARD_EXECUTOR_SSH_USERNAME", "admin"),
+		SSHPassword:            envOr("ORCHARD_EXECUTOR_SSH_PASSWORD", "admin"),
+		SSHPort:                22,
 		Shell:                os.Getenv("ORCHARD_EXECUTOR_SHELL"),
 		Headless:             envBool("ORCHARD_EXECUTOR_HEADLESS", true),
 		Nested:               envBool("ORCHARD_EXECUTOR_NESTED", false),
@@ -80,6 +82,9 @@ func (c *Config) ApplyEnvOverrides() error {
 	}
 	if raw := firstEnv("ORCHARD_SERVICE_ACCOUNT_TOKEN", "ORCHARD_EXECUTOR_SERVICE_ACCOUNT_TOKEN"); raw != "" {
 		c.ServiceAccountToken = raw
+	}
+	if raw := firstEnv("ORCHARD_TRUSTED_CERTIFICATE", "ORCHARD_EXECUTOR_TRUSTED_CERTIFICATE"); raw != "" {
+		c.TrustedCertificatePath = raw
 	}
 	if raw := os.Getenv("ORCHARD_EXECUTOR_CPU"); raw != "" {
 		v, err := strconv.ParseUint(raw, 10, 64)

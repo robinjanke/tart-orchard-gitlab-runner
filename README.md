@@ -93,6 +93,7 @@ The job `image:` becomes the Orchard VM image.
 | `--orchard-url` | `$ORCHARD_URL` | Orchard controller base URL |
 | `--orchard-service-account-name` | `$ORCHARD_SERVICE_ACCOUNT_NAME` | Basic-auth username |
 | `--orchard-service-account-token` | `$ORCHARD_SERVICE_ACCOUNT_TOKEN` | Basic-auth password/token |
+| `--orchard-trusted-certificate` | `$ORCHARD_TRUSTED_CERTIFICATE` | PEM of the Orchard controller cert (required for self-signed TLS) |
 | `--cpu` | unset | VM CPU count |
 | `--memory` | unset | VM memory in MiB |
 | `--disk-size` | unset | VM disk size in GB |

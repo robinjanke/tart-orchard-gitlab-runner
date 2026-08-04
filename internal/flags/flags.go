@@ -13,25 +13,26 @@ import (
 
 // OrchardFlags holds shared Orchard connection / VM flags.
 type OrchardFlags struct {
-	URL                 string
-	ServiceAccountName  string
-	ServiceAccountToken string
-	CPU                 uint64
-	Memory              uint64
-	DiskSize            uint64
-	Labels              []string
-	Resources           []string
-	ImagePullPolicy     string
-	SSHUsername         string
-	SSHPassword         string
-	SSHPort             uint16
-	Shell               string
-	Headless            bool
-	Nested              bool
-	DefaultImage        string
-	MaxConcurrentVMs    uint64
-	CapacityWaitTimeout time.Duration
-	VMReadyTimeout      time.Duration
+	URL                    string
+	ServiceAccountName     string
+	ServiceAccountToken    string
+	TrustedCertificatePath string
+	CPU                    uint64
+	Memory                 uint64
+	DiskSize               uint64
+	Labels                 []string
+	Resources              []string
+	ImagePullPolicy        string
+	SSHUsername            string
+	SSHPassword            string
+	SSHPort                uint16
+	Shell                  string
+	Headless               bool
+	Nested                 bool
+	DefaultImage           string
+	MaxConcurrentVMs       uint64
+	CapacityWaitTimeout    time.Duration
+	VMReadyTimeout         time.Duration
 }
 
 func (f *OrchardFlags) RegisterConnection(cmd *cobra.Command) {
@@ -39,6 +40,7 @@ func (f *OrchardFlags) RegisterConnection(cmd *cobra.Command) {
 	cmd.Flags().StringVar(&f.URL, "orchard-url", defaults.URL, "Orchard controller URL")
 	cmd.Flags().StringVar(&f.ServiceAccountName, "orchard-service-account-name", defaults.ServiceAccountName, "Orchard service account name")
 	cmd.Flags().StringVar(&f.ServiceAccountToken, "orchard-service-account-token", defaults.ServiceAccountToken, "Orchard service account token")
+	cmd.Flags().StringVar(&f.TrustedCertificatePath, "orchard-trusted-certificate", defaults.TrustedCertificatePath, "PEM file with the Orchard controller TLS certificate (self-signed)")
 }
 
 func (f *OrchardFlags) RegisterVM(cmd *cobra.Command) {
@@ -71,6 +73,9 @@ func (f *OrchardFlags) Config() (orchard.Config, error) {
 	}
 	if f.ServiceAccountToken != "" {
 		cfg.ServiceAccountToken = f.ServiceAccountToken
+	}
+	if f.TrustedCertificatePath != "" {
+		cfg.TrustedCertificatePath = f.TrustedCertificatePath
 	}
 	cfg.CPU = f.CPU
 	cfg.Memory = f.Memory
