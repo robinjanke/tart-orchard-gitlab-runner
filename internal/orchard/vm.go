@@ -2,13 +2,29 @@ package orchard
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
+	"net/http"
+	"strings"
 	"time"
 
 	"github.com/cirruslabs/orchard/pkg/client"
 	v1 "github.com/cirruslabs/orchard/pkg/resource/v1"
 )
+
+func IsNotFound(err error) bool {
+	if err == nil {
+		return false
+	}
+	var apiErr *client.APIError
+	if errors.As(err, &apiErr) && apiErr.StatusCode == http.StatusNotFound {
+		return true
+	}
+	// Wrapped client errors often look like: "... to make a request: 404 Not Found"
+	msg := err.Error()
+	return strings.Contains(msg, "404 Not Found") || strings.Contains(msg, ": 404 ")
+}
 
 func BuildVM(name, image string, cfg Config) *v1.VM {
 	vm := &v1.VM{

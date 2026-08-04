@@ -44,6 +44,11 @@ func cleanupVM(cmd *cobra.Command) error {
 	}
 
 	if err := orchard.DeleteVM(cmd.Context(), client, gitLabEnv.VirtualMachineID()); err != nil {
+		// Already gone (e.g. never created / previous cleanup) — not a job failure.
+		if orchard.IsNotFound(err) {
+			log.Printf("Orchard VM %q already gone; skipping delete", gitLabEnv.VirtualMachineID())
+			return nil
+		}
 		log.Printf("Failed to delete VM: %v", err)
 		return err
 	}
